@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    Environment:
+      Variables:
+        AWS_REGION: eu-north-1
+        COGNITO_CLIENT_ID: 54p32d5n5j5m2t0gt45e9og8vo
+        COGNITO_CLIENT_SECRET: dnel7s515mgqk74rurtt1rhqsb0p21kgmu1nf1jdlcfvo04lvde
+        LEADERBOARD_TABLE: leaderboard
+        WEBSOCKET_CONNECTIONS_TABLE: websocket-connections
+        WEBSOCKET_URL: wss://gdjtdhxwkf.execute-api.eu-north-1.amazonaws.com/production/
+        WEBSOCKET_CONNECTION_URL: https://gdjtdhxwkf.execute-api.eu-north-1.amazonaws.com/production/@connections
+
+Resources:
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/auth.register
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          AWS_ACCESS_KEY_ID: AKIA474VTUGHK62Y2HHT
+          AWS_SECRET_ACCESS_KEY: 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
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            Path: /register
+            Method: POST
+            Cors:
+              AllowMethods: "'POST, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+        Options:
+          Type: Api
+          Properties:
+            Path: /register
+            Method: OPTIONS
+            Cors:
+              AllowMethods: "'POST, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+
+  SubmitScoreFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/submitScore.submitScore
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          AWS_ACCESS_KEY_ID: AKIA474VTUGHK62Y2HHT
+          AWS_SECRET_ACCESS_KEY: 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
+      Events:
+        SubmitScore:
+          Type: Api
+          Properties:
+            Path: /score
+            Method: POST
+            Cors:
+              AllowMethods: "'POST, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+        Options:
+          Type: Api
+          Properties:
+            Path: /score
+            Method: OPTIONS
+            Cors:
+              AllowMethods: "'POST, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+
+  GetLeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/getLeaderboard.getLeaderboard
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          AWS_ACCESS_KEY_ID: AKIA474VTUGHK62Y2HHT
+          AWS_SECRET_ACCESS_KEY: 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
+      Events:
+        GetLeaderboard:
+          Type: Api
+          Properties:
+            Path: /leaderboard
+            Method: GET
+            Cors:
+              AllowMethods: "'GET, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+        Options:
+          Type: Api
+          Properties:
+            Path: /leaderboard
+            Method: OPTIONS
+            Cors:
+              AllowMethods: "'GET, OPTIONS'"
+              AllowHeaders: "'Content-Type'"
+              AllowOrigin: "'*'"
+
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: NebulaChallengeWebSocket
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.action"
+
+  WebSocketConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: websocket-connections
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: connectionId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: connectionId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+Outputs:
+  WebSocketApiUrl:
+    Description: "WebSocket API Gateway URL"
+    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${AWS::StackName}/"
+    Export:
+      Name: !Sub "${AWS::StackName}-WebSocketApiUrl"
+  
+  WebSocketConnectionUrl:
+    Description: "WebSocket Connection URL for backend"
+    Value: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${AWS::StackName}/@connections"
+    Export:
+      Name: !Sub "${AWS::StackName}-WebSocketConnectionUrl"
