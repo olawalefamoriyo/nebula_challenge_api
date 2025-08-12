@@ -1,12 +1,8 @@
 import { Router } from "express";
 import leaderboardService from "../services/leaderboard";
+import authenticateToken from "../middleware/auth";
 
 const router = Router();
-
-let authenticateToken: any = (req: any, res: any, next: any) => next();
-export function setAuthMiddleware(mw: any) {
-  authenticateToken = mw;
-}
 
 router.post("/score", authenticateToken, async (req: any, res) => {
   try {
@@ -23,10 +19,14 @@ router.post("/score", authenticateToken, async (req: any, res) => {
         .json({ success: false, message: "Score must be a positive number" });
     }
     const user = req.user;
-    const result = await leaderboardService.submitScore({
-      user_id: user.user_id,
-      user_name: user.user_name,
-      score: scoreNumber,
+    console.log('[LEADERBOARD] Received score submission:', scoreNumber, 'for user:', user);
+    if (!user || !user.user_id || !user.user_name) {
+      return res.status(401).json({ success: false, message: 'User authentication failed: missing user info in token.' });
+    }
+    const result = await leaderboardService.submitScore({ 
+        user_id: user.user_id, 
+        user_name: user.user_name, 
+        score: scoreNumber 
     });
     if (result.success) {
       res

@@ -1,7 +1,4 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { dynamoDB, apiGatewayManagementApi } from '../services/aws';
-
-
 
 export const sendNotification = async (userId: string, message: any): Promise<boolean> => {
   try {

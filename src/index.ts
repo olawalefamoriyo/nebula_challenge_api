@@ -2,9 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createServer } from 'http';
-import authenticateToken from './middleware/auth';
 import authRoutes from './routes/auth';
-import leaderboardRoutes, { setAuthMiddleware as setLeaderboardAuthMiddleware } from './routes/leaderboard';
+import leaderboardRoutes from './routes/leaderboard';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -46,9 +45,6 @@ app.use(bodyParser.json());
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Nebula Challenge API is running' });
 });
-
-
-setLeaderboardAuthMiddleware(authenticateToken);
 
 app.use('/', authRoutes);
 app.use('/', leaderboardRoutes);
