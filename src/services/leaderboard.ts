@@ -74,7 +74,6 @@ export class LeaderboardService {
           };
 
           await sendNotification(scoreData.user_id, notificationMessage);
-          console.log(`High score notification sent to user: ${scoreData.user_id}`);
         } catch (notificationError) {
           console.error('Failed to send high score notification:', notificationError);
         }
