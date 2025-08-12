@@ -7,10 +7,10 @@ export const sendNotification = async (userId: string, message: any): Promise<bo
 
     const params = {
       TableName: tableName,
-      FilterExpression: 'userId <> :userId',
-      ExpressionAttributeValues: {
-        ':userId': userId
-      }
+      // FilterExpression: 'userId <> :userId',
+      // ExpressionAttributeValues: {
+      //   ':userId': userId
+      // }
     };
 
     const result = await dynamoDB.scan(params).promise();

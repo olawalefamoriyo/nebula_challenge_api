@@ -1,3 +1,19 @@
+  WebSocketConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/connect.connectHandler
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          AWS_REGION: eu-north-1
+          WEBSOCKET_CONNECTIONS_TABLE: websocket-connections
+      Events:
+        WebSocketConnect:
+          Type: Api
+          Properties:
+            Path: $connect
+            Method: ANY
+            RestApiId: !Ref WebSocketApi
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
