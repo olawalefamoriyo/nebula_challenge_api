@@ -22,8 +22,4 @@ export const apiGatewayManagementApi = new AWS.ApiGatewayManagementApi({
   endpoint: process.env.WEBSOCKET_CONNECTION_URL
 });
 
-export const sns = new AWS.SNS({
-  region: process.env.AWS_REGION
-});
-
 export default AWS; 

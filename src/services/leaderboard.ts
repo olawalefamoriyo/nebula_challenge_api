@@ -102,7 +102,7 @@ export class LeaderboardService {
 
       const result = await dynamoDB.scan(params).promise();
 
-      if (!result.Items) {
+      if (!result.Items || result.Items.length === 0) {
         return {
           success: true,
           message: 'No scores found',
@@ -110,14 +110,12 @@ export class LeaderboardService {
         };
       }
 
-      const sortedItems = result.Items
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
+      const topScore = result.Items.sort((a, b) => b.score - a.score)[0];
 
       return {
         success: true,
         message: 'Leaderboard retrieved successfully',
-        data: sortedItems as LeaderboardEntry[]
+        data: topScore ? [topScore as LeaderboardEntry] : []
       };
     } catch (error: any) {
       console.error('Leaderboard retrieval error:', error);
