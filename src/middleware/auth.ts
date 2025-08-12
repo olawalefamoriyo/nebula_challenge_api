@@ -5,7 +5,7 @@ const authenticateToken = async (req: any, res: any, next: any) => {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({
       success: false,
-      message: 'Access token required'
+      message: 'You are not authorized to perform this action.'
     });
   }
 
